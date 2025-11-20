@@ -1,12 +1,17 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import styles from './LoginPage.module.css'
 
 const LoginPage = () => {
+    const navigate = useNavigate()
+    const { login, loading } = useAuth()
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     })
+    const [error, setError] = useState('')
+    const [fieldErrors, setFieldErrors] = useState({})
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -14,12 +19,49 @@ const LoginPage = () => {
             ...prev,
             [name]: value
         }))
+        // Limpiar error del campo al escribir
+        if (fieldErrors[name]) {
+            setFieldErrors(prev => ({ ...prev, [name]: '' }))
+        }
+        setError('')
     }
 
-    const handleSubmit = (e) => {
+    const validateForm = () => {
+        const errors = {}
+        
+        // Validar email
+        if (!formData.email) {
+            errors.email = 'El correo electrónico es requerido'
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            errors.email = 'Ingresa un correo electrónico válido'
+        }
+        
+        // Validar password
+        if (!formData.password) {
+            errors.password = 'La contraseña es requerida'
+        } else if (formData.password.length < 6) {
+            errors.password = 'La contraseña debe tener al menos 6 caracteres'
+        }
+        
+        setFieldErrors(errors)
+        return Object.keys(errors).length === 0
+    }
+
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        // Lógica de inicio de sesión
-        console.log('Datos de inicio de sesión:', formData)
+        setError('')
+        
+        if (!validateForm()) {
+            return
+        }
+
+        const result = await login(formData)
+        
+        if (result.success) {
+            navigate('/chats')
+        } else {
+            setError(result.error || 'Error al iniciar sesión. Verifica tus credenciales.')
+        }
     }
 
     return (
@@ -41,31 +83,47 @@ const LoginPage = () => {
 
                     <h2 className={styles.loginTitle}>Iniciar Sesión</h2>
 
-                    <form className={styles.loginForm} onSubmit={handleSubmit}>
-                        <input
-                            type="text"
-                            name="email"
-                            placeholder="Correo eléctronico"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className={styles.loginInput}
-                            required
-                        />
+                    {error && (
+                        <div className={styles.errorMessage}>
+                            <i className="bi bi-exclamation-circle"></i> {error}
+                        </div>
+                    )}
 
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Contraseña"
-                            value={formData.password}
-                            onChange={handleChange}
-                            className={styles.loginInput}
-                            required
-                        />
+                    <form className={styles.loginForm} onSubmit={handleSubmit}>
+                        <div className={styles.inputGroup}>
+                            <input
+                                type="text"
+                                name="email"
+                                placeholder="Correo electrónico"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className={`${styles.loginInput} ${fieldErrors.email ? styles.inputError : ''}`}
+                                disabled={loading}
+                            />
+                            {fieldErrors.email && (
+                                <span className={styles.fieldError}>{fieldErrors.email}</span>
+                            )}
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="Contraseña"
+                                value={formData.password}
+                                onChange={handleChange}
+                                className={`${styles.loginInput} ${fieldErrors.password ? styles.inputError : ''}`}
+                                disabled={loading}
+                            />
+                            {fieldErrors.password && (
+                                <span className={styles.fieldError}>{fieldErrors.password}</span>
+                            )}
+                        </div>
 
                         <Link to="/forgot-password" className={styles.loginForgot}>¿Olvidaste tu contraseña?</Link>
 
-                        <button type="submit" className={styles.loginButton}>
-                            ENTRAR
+                        <button type="submit" className={styles.loginButton} disabled={loading}>
+                            {loading ? 'INICIANDO SESIÓN...' : 'ENTRAR'}
                         </button>
 
                         <p className={styles.loginText}>

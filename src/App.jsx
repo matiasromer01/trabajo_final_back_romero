@@ -5,7 +5,9 @@ import {
   Route, 
   Navigate 
 } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/ASideBar';
 import PrincipalScreen from './pages/PrincipalScreen';
 import ConversationPage from './pages/ConversationPage';
@@ -25,44 +27,58 @@ function App() {
   }, [darkMode]);
 
   return (
-    <AppProvider>
-      <Router>
-        <div className="App">
-          <Sidebar setDarkMode={setDarkMode} darkMode={darkMode} />
-          <div className="content">
-            <Routes>
-              {/* Ruta prin - redirige chats */}
-              <Route path="/" element={<Navigate to="/chats" replace />} />
-              
-              {/* Página principal */}
-              <Route path="/chats" element={<PrincipalScreen />} />
-              
-              {/* Chat específico con ID */}
-              <Route path="/chat/:id" element={<ConversationPage />} />
-              
-              {/* Página/estados */}
-              <Route path="/status" element={<StatusPage />} />
+    <AuthProvider>
+      <AppProvider>
+        <Router>
+          <div className="App">
+            <Sidebar setDarkMode={setDarkMode} darkMode={darkMode} />
+            <div className="content">
+              <Routes>
+                {/* Ruta principal - redirige a chats */}
+                <Route path="/" element={<Navigate to="/chats" replace />} />
+                
+                {/* Rutas protegidas - requieren autenticación */}
+                <Route path="/chats" element={
+                  <ProtectedRoute>
+                    <PrincipalScreen />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/chat/:id" element={
+                  <ProtectedRoute>
+                    <ConversationPage />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/status" element={
+                  <ProtectedRoute>
+                    <StatusPage />
+                  </ProtectedRoute>
+                } />
 
-              {/* Página/comunidades */}
-              <Route path="/comunities" element={<ComunitiesPage/>} />
-              
-              {/* Página/config */}
-              <Route path="/settings" element={<SettingsPage />} />
-              
-              {/* Página de login */}
-              <Route path="/login" element={<LoginPage />} />
-              
-              {/* Página de registro */}
-              <Route path="/register" element={<RegisterPage />} />
-              
-              {/* Página de recuperación de contraseña */}
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              
-            </Routes>
+                <Route path="/comunities" element={
+                  <ProtectedRoute>
+                    <ComunitiesPage />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <SettingsPage />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Rutas públicas - autenticación */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                
+              </Routes>
+            </div>
           </div>
-        </div>
-      </Router>
-    </AppProvider>
+        </Router>
+      </AppProvider>
+    </AuthProvider>
   );
 }
 

@@ -19,7 +19,7 @@ const ForgotPasswordPage = () => {
                 <h2 className={styles.forgotPasswordHeaderTitle}>Recuperar Contraseña</h2>
                 <p className={styles.forgotPasswordHeaderSubtitle}>
                     {!isSubmitted 
-                        ? 'Ingresa tu correo electrónico para recibir instrucciones'
+                        ? 'Ingresa tu correo electrónico para reestablecer tu contraseña'
                         : 'Revisa tu correo electrónico'
                     }
                 </p>
@@ -51,7 +51,7 @@ const ForgotPasswordPage = () => {
                                 />
 
                                 <button type="submit" className={styles.forgotPasswordButton}>
-                                    ENVIAR INSTRUCCIONES
+                                    ENVIAR EMAIL
                                 </button>
 
                                 <p className={styles.forgotPasswordText}>
@@ -61,7 +61,6 @@ const ForgotPasswordPage = () => {
                         </>
                     ) : (
                         <div className={styles.successMessage}>
-                            <div className={styles.successIcon}>✓</div>
                             <h2 className={styles.successTitle}>¡Correo Enviado!</h2>
                             <p className={styles.successText}>
                                 Hemos enviado las instrucciones para restablecer tu contraseña a <strong>{email}</strong>

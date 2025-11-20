@@ -125,6 +125,40 @@
     gap: 15px;
 }
 
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.errorMessage {
+    background-color: #fee;
+    border: 1px solid #fcc;
+    color: #c33;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+[data-theme="dark"] .errorMessage {
+    background-color: #4a1c1c;
+    border-color: #8b3333;
+    color: #ff6b6b;
+}
+
+.fieldError {
+    color: #c33;
+    font-size: 0.75rem;
+    margin-top: -5px;
+}
+
+[data-theme="dark"] .fieldError {
+    color: #ff6b6b;
+}
+
 .registerInput {
     padding: 14px 16px;
     border: 1px solid var(--register-input-border);
@@ -136,8 +170,29 @@
     outline: none;
 }
 
+.registerInput.inputError {
+    border-color: #c33;
+}
+
+[data-theme="dark"] .registerInput.inputError {
+    border-color: #ff6b6b;
+}
+
+.registerInput:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .registerInput::placeholder {
     color: var(--register-placeholder);
+}
+
+.registerInput:focus {
+    border-color: var(--register-input-focus);
+}
+
+.registerInput.inputError:focus {
+    border-color: #c33;
 }
 
 .registerInput:focus {
@@ -158,12 +213,17 @@
     letter-spacing: 0.5px;
 }
 
-.registerButton:hover {
+.registerButton:hover:not(:disabled) {
     background: var(--register-button-hover);
 }
 
-.registerButton:active {
+.registerButton:active:not(:disabled) {
     transform: scale(0.98);
+}
+
+.registerButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .registerText {

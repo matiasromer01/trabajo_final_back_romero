@@ -2,22 +2,7 @@ import React from 'react';
 import styles from './StatusPage.module.css';
 
 const ComunitiesPage = () => {
-    const sampleComunities = [
-        {
-            id: 1,
-            name: "San Lorenzo",
-            isOwn: false,
-            viewed: false,
-            imageUrl: "/San_Lorenzo_Almagro.jpg"
-        },
-        {
-            id: 2,
-            name: "Ayacucho",
-            isOwn: false,
-            viewed: true,
-            imageUrl: "/Argentina_-_Buenos_Aires_-_Ayacucho.svg"
-        }
-    ];
+    const sampleComunities = [];
 
     return (
         <div className={styles.statusPage}>

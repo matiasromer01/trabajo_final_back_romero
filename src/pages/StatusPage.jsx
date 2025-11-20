@@ -8,20 +8,6 @@ const StatusPage = () => {
             name: "Tu estado",
             time: "Añadir estado",
             isOwn: true
-        },
-        {
-            id: 2,
-            name: "Matias",
-            time: "hace 30 minutos",
-            isOwn: false,
-            viewed: false
-        },
-        {
-            id: 3,
-            name: "Kevin",
-            time: "hace 5 horas",
-            isOwn: false,
-            viewed: true
         }
     ];
 

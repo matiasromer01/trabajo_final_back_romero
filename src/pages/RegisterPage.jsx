@@ -1,13 +1,18 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import styles from './RegisterPage.module.css'
 
 const RegisterPage = () => {
+    const navigate = useNavigate()
+    const { register, loading } = useAuth()
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: ''
     })
+    const [error, setError] = useState('')
+    const [fieldErrors, setFieldErrors] = useState({})
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -15,12 +20,60 @@ const RegisterPage = () => {
             ...prev,
             [name]: value
         }))
+        // Limpiar error del campo al escribir
+        if (fieldErrors[name]) {
+            setFieldErrors(prev => ({ ...prev, [name]: '' }))
+        }
+        setError('')
     }
 
-    const handleSubmit = (e) => {
+    const validateForm = () => {
+        const errors = {}
+        
+        // Validar nombre
+        if (!formData.name) {
+            errors.name = 'El nombre completo es requerido'
+        } else if (formData.name.length < 3) {
+            errors.name = 'El nombre debe tener al menos 3 caracteres'
+        }
+        
+        // Validar email
+        if (!formData.email) {
+            errors.email = 'El correo electrónico es requerido'
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            errors.email = 'Ingresa un correo electrónico válido'
+        }
+        
+        // Validar password
+        if (!formData.password) {
+            errors.password = 'La contraseña es requerida'
+        } else if (formData.password.length < 8) {
+            errors.password = 'La contraseña debe tener al menos 8 caracteres'
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+            errors.password = 'Debe contener mayúsculas, minúsculas y números'
+        }
+        
+        setFieldErrors(errors)
+        return Object.keys(errors).length === 0
+    }
+
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        // Lógica de registro
-        console.log('Datos de registro:', formData)
+        setError('')
+        
+        if (!validateForm()) {
+            return
+        }
+
+        const result = await register(formData)
+        
+        if (result.success) {
+            // Si el backend devuelve token, redirigir a chats
+            // Si no, redirigir a login o mostrar mensaje de verificación de email
+            navigate('/login')
+        } else {
+            setError(result.error || 'Error al registrarse. Intenta nuevamente.')
+        }
     }
 
     return (
@@ -42,39 +95,60 @@ const RegisterPage = () => {
 
                     <h2 className={styles.registerTitle}>Registrarse</h2>
 
+                    {error && (
+                        <div className={styles.errorMessage}>
+                            <i className="bi bi-exclamation-circle"></i> {error}
+                        </div>
+                    )}
+
                     <form className={styles.registerForm} onSubmit={handleSubmit}>
-                        <input
-                            type="text"
-                            name="name"
-                            placeholder="Nombre completo"
-                            value={formData.name}
-                            onChange={handleChange}
-                            className={styles.registerInput}
-                            required
-                        />
+                        <div className={styles.inputGroup}>
+                            <input
+                                type="text"
+                                name="name"
+                                placeholder="Nombre completo"
+                                value={formData.name}
+                                onChange={handleChange}
+                                className={`${styles.registerInput} ${fieldErrors.name ? styles.inputError : ''}`}
+                                disabled={loading}
+                            />
+                            {fieldErrors.name && (
+                                <span className={styles.fieldError}>{fieldErrors.name}</span>
+                            )}
+                        </div>
 
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="Correo electrónico"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className={styles.registerInput}
-                            required
-                        />
+                        <div className={styles.inputGroup}>
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="Correo electrónico"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className={`${styles.registerInput} ${fieldErrors.email ? styles.inputError : ''}`}
+                                disabled={loading}
+                            />
+                            {fieldErrors.email && (
+                                <span className={styles.fieldError}>{fieldErrors.email}</span>
+                            )}
+                        </div>
 
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Contraseña"
-                            value={formData.password}
-                            onChange={handleChange}
-                            className={styles.registerInput}
-                            required
-                        />
+                        <div className={styles.inputGroup}>
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="Contraseña"
+                                value={formData.password}
+                                onChange={handleChange}
+                                className={`${styles.registerInput} ${fieldErrors.password ? styles.inputError : ''}`}
+                                disabled={loading}
+                            />
+                            {fieldErrors.password && (
+                                <span className={styles.fieldError}>{fieldErrors.password}</span>
+                            )}
+                        </div>
 
-                        <button type="submit" className={styles.registerButton}>
-                            REGISTRARSE
+                        <button type="submit" className={styles.registerButton} disabled={loading}>
+                            {loading ? 'REGISTRANDO...' : 'REGISTRARSE'}
                         </button>
 
                         <p className={styles.registerText}>
